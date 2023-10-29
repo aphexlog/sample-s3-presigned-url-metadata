@@ -1,0 +1,72 @@
+service: sample-s3-presigned-url-metadata
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.11
+  stage: ${opt:stage, 'dev'}
+  environment:
+    BUCKET_NAME: ${self:service}-${self:provider.stage}
+    OBJECT_NAME: hello.txt
+
+custom:
+  pythonRequirements:
+    layer: true
+
+functions:
+  upload:
+    handler: presigned_url.lambda_handler
+    role:
+      Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/MyLambdaExecutionRole
+    layers:
+      - {Ref: PythonRequirementsLambdaLayer}
+  get_metadata:
+    handler: get_metadata.lambda_handler
+    role:
+      Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/MyLambdaExecutionRole
+    layers:
+      - {Ref: PythonRequirementsLambdaLayer}
+
+resources:
+  Resources:
+    MyLambdaExecutionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: MyLambdaExecutionRole
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action:
+                - sts:AssumeRole
+        Policies:
+          - PolicyName: S3AccessPolicy
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - s3:PutObject
+                  Resource: arn:aws:s3:::${self:service}-${self:provider.stage}/*
+    S3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:service}-${self:provider.stage}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - PUT
+              MaxAge: 3000
+              ExposedHeaders:
+                - 'x-amz-meta-foo'
+
+plugins:
+  - serverless-python-requirements
