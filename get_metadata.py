@@ -1,5 +1,6 @@
 """Get metadata from S3 object."""
 import os
+import json
 import boto3
 from botocore.client import ClientError
 
@@ -23,11 +24,15 @@ def lambda_handler(event, context):
 
     metadata = get_metadata(bucket_name, object_name)
 
-    if metadata:
+    if metadata is not None:
         print(f"Metadata: {metadata}")
+    else:
+        print(
+            f"Error getting metadata for object {object_name} in bucket {bucket_name}"
+        )
 
+    # return the metadata as response
     return {
         "statusCode": 200,
-        "Metadata": metadata,
-        "body": "Hello from Lambda!",
+        "body": json.dumps(f"Metadata: {metadata}"),
     }

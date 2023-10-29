@@ -33,7 +33,9 @@ def lambda_handler(event, context):
         if response.status_code == 200:
             # Add metadata to the object
             s3_client.put_object(
-                Bucket=bucket_name, Key=object_name, Metadata={"foo": "test"}
+                Bucket=bucket_name,
+                Key=object_name,
+                Metadata={"userId": "user123"},
             )
 
             return {

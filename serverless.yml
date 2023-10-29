@@ -51,6 +51,7 @@ resources:
                 - Effect: Allow
                   Action:
                     - s3:PutObject
+                    - s3:GetObject
                   Resource: arn:aws:s3:::${self:service}-${self:provider.stage}/*
     S3Bucket:
       Type: AWS::S3::Bucket
@@ -66,7 +67,7 @@ resources:
                 - PUT
               MaxAge: 3000
               ExposedHeaders:
-                - 'x-amz-meta-foo'
+                - 'x-amz-meta-userId'
 
 plugins:
   - serverless-python-requirements
