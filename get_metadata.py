@@ -22,17 +22,14 @@ def lambda_handler(event, context):
     bucket_name = os.environ["BUCKET_NAME"]
     object_name = os.environ["OBJECT_NAME"]
 
-    metadata = get_metadata(bucket_name, object_name)
+    metadata = get_metadata(bucket_name, object_name).get("Metadata", {})
 
-    if metadata is not None:
+    user_id = metadata.get("userid")
+    if user_id is not None:
         print(f"Metadata: {metadata}")
+        return user_id
     else:
         print(
             f"Error getting metadata for object {object_name} in bucket {bucket_name}"
         )
-
-    # return the metadata as response
-    return {
-        "statusCode": 200,
-        "body": json.dumps(f"Metadata: {metadata}"),
-    }
+        return None

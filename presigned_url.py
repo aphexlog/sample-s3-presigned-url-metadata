@@ -35,7 +35,7 @@ def lambda_handler(event, context):
             s3_client.put_object(
                 Bucket=bucket_name,
                 Key=object_name,
-                Metadata={"userId": "user123"},
+                Metadata={"userId": event.get("user_id")},
             )
 
             return {
