@@ -43,7 +43,6 @@ def lambda_handler(event, context):
                 "body": json.dumps(
                     f"Successfully uploaded object {object_name} to bucket {bucket_name}."
                 ),
-                "response": f"{response.text}",
             }
         else:
             return {
@@ -51,7 +50,6 @@ def lambda_handler(event, context):
                 "body": json.dumps(
                     f"Failed to upload object {object_name} to bucket {bucket_name}."
                 ),
-                "response": f"{response.text}",
             }
     except Exception as err:
         return {
